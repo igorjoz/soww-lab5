@@ -25,10 +25,25 @@ long is_prime(long n)
 
 long CountTwinPrimes(long a, long b)
 {
-  long i = 0;
   long sum = 0;
-#pragma omp parallel for private(i) reduction(+ : sum)
-  for (i = a; i <= b; i++)
+
+  if (a <= 3 && b >= 3)
+  {
+    sum++;
+  }
+
+  long start = a;
+  if (start < 5)
+  {
+    start = 5;
+  }
+  while (start % 6 != 5)
+  {
+    start++;
+  }
+
+#pragma omp parallel for reduction(+ : sum) schedule(dynamic, 256)
+  for (long i = start; i <= b; i += 6)
   {
     if (is_prime(i) && is_prime(i + 2))
     {
