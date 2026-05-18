@@ -1,0 +1,55 @@
+Zadanie realizujemy na przygotowanym wzorcu.
+
+Po zrobieniu zadania przygotowujemy paczkę z rozwiązaniem:
+
+Taka struktura jak we wzorcu, robimy make clean, pakujemy całość do archiwum, archiwum nazywamy naszym numerem indeksu (np. 1111111.tar) i tak przygotowane archiwum wgrywamy do e-nauczania.
+
+Wzorzec:
+
+Wzorzec zawiera plik mpi+openmp.c, na którym pracujemy. Jako argument przyjmuje liczbę liczb, które mają zostać wygenerowane przez proces o numerze 0. 
+
+kompilacja:
+
+make
+
+czyszczenie:
+
+make clean
+
+uruchomienie:
+
+make run X L2 Y
+
+gdzie X to liczba liczb do wygenerowania, Y liczba wątków
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Storage for task 5
+
+You should prepare your task in provided sample pattern.
+
+After implementation we should prepare the solution package:
+
+Solution should contain only source files and additional files like headers or Makefile (no binaries inside)
+
+At the begining put make clean command, then archive the solution to tar or zip with file name same as your student id number (ie 111111.tar. Such prepared archive we upload to e-nauczanie
+
+Patterns:
+
+Pattern contains file mpi+openmp.c, where you should write your work. Input argument is the number of numbers to be generated within application by process 0. 
+
+compilation:
+
+make
+
+cleaning:
+
+make clean
+
+running:
+
+make run X L2 Y
+
+where X is number of numbers to generate, Y number of threads
+
+pattern-omp+mpi.zip pattern-omp+mpi.zip24.02.2026, 16:12 PM
