@@ -9,21 +9,26 @@
 #define RESULT 1
 #define FINISH 2
 
-double
-f (double x)
-{
-    return sin (x) * sin (x) / x;
+long is_prime(long n) {
+    if (n <= 1) return 0;
+    if (n <= 3) return 1;
+    if (n % 2 == 0 || n % 3 == 0) return 0;
+    for (long i = 5; i * i <= n; i = i + 6)
+        if (n % i == 0 || n % (i + 2) == 0)
+            return 0;
+    return 1;
 }
 
-double
-SimpleIntegration (double a, double b, double precision)
+long CountTwinPrimes(long a, long b)
 {
-    long j = (b-a)/precision;
-    int i=0;
-    double sum = 0;
+    long i=0;
+    long sum = 0;
     #pragma omp parallel for private(i) reduction(+:sum)
-    for (i = 0; i < j; i ++)
-    sum += f (a+i*precision) * precision;
+    for (i = a; i <= b; i ++) {
+        if (is_prime(i) && is_prime(i + 2)) {
+            sum++;
+        }
+    }
     return sum;
 }
 
@@ -37,16 +42,15 @@ int main(int argc,char **argv) {
   
   //program input argument
   long inputArgument = ins__args.arg; 
-  double precision=1.0/inputArgument;
   struct timeval ins__tstart, ins__tstop;
 
   int threadsupport;
   int myrank,proccount;
 
 
-  double a = 1, b = 100;
-  double range[2];
-  double result = 0, resulttemp;
+  long a = 1, b = inputArgument;
+  long range[2];
+  long result = 0, resulttemp;
   int sentcount = 0;
   int i;
   MPI_Status status;
@@ -80,14 +84,14 @@ if (myrank == 0)
             range[1] = range[0] + RANGESIZE;
 
       // send it to process i
-      MPI_Send (range, 2, MPI_DOUBLE, i, DATA, MPI_COMM_WORLD);
+      MPI_Send (range, 2, MPI_LONG, i, DATA, MPI_COMM_WORLD);
       sentcount++;
       range[0] = range[1];
   }
   do
   {
       // distribute remaining subranges to the processes which have completed their parts
-      MPI_Recv (&resulttemp, 1, MPI_DOUBLE, MPI_ANY_SOURCE, RESULT,
+      MPI_Recv (&resulttemp, 1, MPI_LONG, MPI_ANY_SOURCE, RESULT,
       MPI_COMM_WORLD, &status);
       result += resulttemp;
 
@@ -96,7 +100,7 @@ if (myrank == 0)
       if (range[1] > b)
               range[1] = b;
 
-      MPI_Send (range, 2, MPI_DOUBLE, status.MPI_SOURCE, DATA,
+      MPI_Send (range, 2, MPI_LONG, status.MPI_SOURCE, DATA,
             MPI_COMM_WORLD);
       range[0] = range[1];
   }
@@ -105,17 +109,17 @@ if (myrank == 0)
   // now receive results from the processes
         for (i = 0; i < (proccount - 1); i++)
   {
-      MPI_Recv (&resulttemp, 1, MPI_DOUBLE, MPI_ANY_SOURCE, RESULT,
+      MPI_Recv (&resulttemp, 1, MPI_LONG, MPI_ANY_SOURCE, RESULT,
       MPI_COMM_WORLD, &status);
       result += resulttemp;
   }
   // shut down the slaves
   for (i = 1; i < proccount; i++)
   {
-            MPI_Send (NULL, 0, MPI_DOUBLE, i, FINISH, MPI_COMM_WORLD);
+            MPI_Send (NULL, 0, MPI_LONG, i, FINISH, MPI_COMM_WORLD);
   }
         // now display the result
-        printf ("\nHi, I am process 0, the result is %f\n", result);
+        printf ("\nHi, I am process 0, the result is %ld\n", result);
     }
     else
     {       // slave
@@ -126,12 +130,12 @@ if (myrank == 0)
 
       if (status.MPI_TAG == DATA)
       {
-                MPI_Recv (range, 2, MPI_DOUBLE, 0, DATA, MPI_COMM_WORLD,
+                MPI_Recv (range, 2, MPI_LONG, 0, DATA, MPI_COMM_WORLD,
         &status);
     // compute my part
-    resulttemp = SimpleIntegration (range[0], range[1], precision);
+    resulttemp = CountTwinPrimes (range[0], range[1]);
     // send the result back
-    MPI_Send (&resulttemp, 1, MPI_DOUBLE, 0, RESULT,
+    MPI_Send (&resulttemp, 1, MPI_LONG, 0, RESULT,
         MPI_COMM_WORLD);
       }
   }
